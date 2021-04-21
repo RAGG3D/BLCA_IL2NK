@@ -230,6 +230,7 @@ BLCA_transcript <- function(){
       mutate(sample = i)
   }  %>% 
     tidybulk::rename(ensembl = `X1`) %>%
+    tidybulk::rename(raw_count = `X2`) %>%
     separate(ensembl, c("ensembl_id", "c"), sep = "\\.") %>%
     inner_join(toTable(org.Hs.egENSEMBL)) %>%
     inner_join(toTable(org.Hs.egSYMBOL)) %>%

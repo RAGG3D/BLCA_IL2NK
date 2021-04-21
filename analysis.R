@@ -37,8 +37,6 @@ blcacell <- foreach(i = as.character(res$stratification_cellularity[[1]]$.cell_t
     dplyr::select(sample, celltype, fraction)
 }
 
-BLCA <- BLCA_transcript()
-
 #FIG 1
 x <- Bar_TCGAcelltype_BLCA(blcank) %>%
   mutate(nkstate = gsub("nk_resting", "ReNK", nkstate)) %>%  
@@ -125,7 +123,7 @@ ggsave(plot = plot_grid(plot_grid(p1a01, p1a02, nrow = 1), p1b, ncol = 1), "outp
 
 #FIG 2
 x <- Bar_TCGAcelltype_BLCA(blcank) %>%
-  inner_join(read.csv("data//clinical_blca.csv"), by = c("sample" = "bcr_patient_barcode"))%>%
+  inner_join(read.csv("data/clinical_blca.csv"), by = c("sample" = "bcr_patient_barcode"))%>%
   mutate(total_living_days = as.numeric(as.character(days_to_death)), age = -as.numeric(as.character(days_to_birth))/365) %>% 
   mutate(na = is.na(total_living_days)) %>%
   mutate(total_living_days = ifelse(na == "TRUE", as.numeric(as.character(last_contact_days_to)), total_living_days)) %>%
@@ -253,7 +251,7 @@ ggsave(plot = p3, "output/BLCA-NEW-p4.pdf",device = "pdf", height = 4, width = 1
 x <- genelist_cancer(BLCA, "BLCA", list("KLRK1")) %>%
   filter(cat == "median")
 x$symbol <- factor(x$symbol, levels=c("KLRK1"), ordered=TRUE)
-p6a <- ggsurvplot(
+p5a <- ggsurvplot(
   survfit(
     Surv(total_living_days, vital_status) ~ item,
     data = x 
@@ -295,7 +293,7 @@ x <- foreach(i = "CD160", .combine = bind_rows) %do% {
   mutate(item = ifelse(item == "2/2", "H/H", "other groups"))
 x <- as.data.frame(x)
 x$item = factor(x$item, levels=c("other groups", "H/H"))
-p6b <- ggsurvplot(
+p5b <- ggsurvplot(
   survfit(
     Surv(total_living_days, vital_status) ~ item,
     data = x 
@@ -338,7 +336,7 @@ a$stars <- cut(a$p.value, breaks=c(-Inf, 0.001, 0.01, 0.05, Inf), label=c("***",
 a$X2 <- factor(a$X2, levels=c('nk_resting', 'nk_primed_IL2', 'nk_primed_IL2_PDGFD', "t_helper", "t_CD8_naive", "t_gamma_delta", 't_CD4_memory_central', 
                               't_CD4_memory_effector', "t_CD8_memory_central", "t_CD8_memory_effector", "t_reg"), ordered=TRUE)
 a$X1 <- factor(a$X1, levels = c("LTA", "BTLA", "TNFSF14", "CD160", "TNFRSF14", "KLRK1"), ordered = T)
-p6c <- ggplot(data = a , aes(x=`X2`, y=`X1`, fill=value)) + 
+p5c <- ggplot(data = a , aes(x=`X2`, y=`X1`, fill=value)) + 
   geom_tile() + 
   geom_text(aes(label=stars)) + 
   scale_fill_viridis() +
@@ -351,4 +349,4 @@ p6c <- ggplot(data = a , aes(x=`X2`, y=`X1`, fill=value)) +
         axis.text.x = element_text(angle = -45),
         legend.key.width = unit(3, "line")) +
   labs(fill = "Correlation")
-ggsave(plot = plot_grid(plot_grid(p6a, p6b, nrow = 1), p6c, ncol = 1), "output/BLCA-NEW-p5.pdf",device = "pdf", height = 9, width = 9)
+ggsave(plot = plot_grid(plot_grid(p5a, p5b, nrow = 1), p5c, ncol = 1), "output/BLCA-NEW-p5.pdf",device = "pdf", height = 9, width = 9)
