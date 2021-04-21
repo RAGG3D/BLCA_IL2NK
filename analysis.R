@@ -350,5 +350,5 @@ p5c <- ggplot(data = a , aes(x=`X2`, y=`X1`, fill=value)) +
         legend.position = "bottom",
         axis.text.x = element_text(angle = -45),
         legend.key.width = unit(3, "line")) +
-  labs(fill = "Correlation")
+  labs(fill = "Correlation", tag = "C")
 ggsave(plot = plot_grid(plot_grid(p5a, p5b, nrow = 1), p5c, ncol = 1), "output/BLCA-NEW-p5.pdf",device = "pdf", height = 9, width = 9)
