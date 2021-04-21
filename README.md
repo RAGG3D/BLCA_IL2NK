@@ -1,6 +1,8 @@
 # BLCA_IL2NK
-This is Figure 1
-#FIG 1
+## Figure 1
+### FIG 1A
+
+```
 x <- Bar_TCGAcelltype_BLCA(blcank) %>%
   mutate(nkstate = gsub("nk_resting", "ReNK", nkstate)) %>%  
   mutate(nkstate = gsub("nk_primed_IL2_PDGFD", "SPANK", nkstate)) %>%
@@ -36,7 +38,10 @@ p1a02 <- x %>%
         axis.ticks.y = element_blank(),
         legend.position = "bottom") + 
   guides(fill=guide_legend(title="NK Phenotype"))
+```
 
+### FIG 1B
+```
 x <- blcank %>%
   spread(nkstate, fraction) %>%
   mutate(nk_primed_IL2 = ifelse(
@@ -80,3 +85,4 @@ p1b =  ggsurvplot(
         legend.position = "bottom") +
   guides(linetype = FALSE) +
   labs(tag = "B")
+```
