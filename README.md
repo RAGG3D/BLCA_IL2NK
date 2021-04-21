@@ -40,6 +40,16 @@ blcank <- foreach(i = as.character(res$stratification_cellularity[[1]]$.cell_typ
 ```
 Then we formatted the matrix of cell type fractions to make it easier to use in the following analysis:
 ```
+blcank <- foreach(i = as.character(res$stratification_cellularity[[1]]$.cell_type), .combine = bind_rows) %do% {
+  x <- res$stratification_cellularity[[1]] %>%
+    filter(.cell_type == i)
+  
+  x$cell_type_proportions[[1]]  %>%
+    mutate(celltype = i, fraction = .proportion, nkstate = celltype, sample = patient)%>%
+    dplyr::select(sample, nkstate, fraction)
+} %>%    
+    filter(grepl("nk", nkstate)) 
+
 blcacell <- foreach(i = as.character(res$stratification_cellularity[[1]]$.cell_type), .combine = bind_rows) %do% {
   x <- res$stratification_cellularity[[1]] %>%
     filter(.cell_type == i)
