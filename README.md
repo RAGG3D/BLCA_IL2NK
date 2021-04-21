@@ -240,7 +240,7 @@ x$cat <- factor(x$cat, levels=c("PDGFD", "PDGFRB"), ordered=TRUE)
 
 x$item <- factor(x$item, levels=c(1, 2), ordered=TRUE)
 
-p2 =  ggsurvplot(
+p3 =  ggsurvplot(
   survfit(
     Surv(total_living_days, vital_status) ~ item,
     data = x 
@@ -282,7 +282,7 @@ x <- x %>%
   
 x$cat <- factor(x$cat, levels=c("PDGFD/ReNK", "PDGFD/IL2NK", "PDGFD/SPANK"), ordered=TRUE)
 
-p3 =  ggsurvplot(
+p4 =  ggsurvplot(
   survfit(
     Surv(total_living_days, vital_status) ~ item,
     data = x 
