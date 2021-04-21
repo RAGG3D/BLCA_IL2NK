@@ -37,6 +37,8 @@ blcacell <- foreach(i = as.character(res$stratification_cellularity[[1]]$.cell_t
     dplyr::select(sample, celltype, fraction)
 }
 
+BLCA <- readRDS("data/BLCA.rds")
+
 #FIG 1
 x <- Bar_TCGAcelltype_BLCA(blcank) %>%
   mutate(nkstate = gsub("nk_resting", "ReNK", nkstate)) %>%  
@@ -184,7 +186,7 @@ x <- PDGFsurvival("BLCA", 2) %>%
 x <- as.data.frame(x)
 x$cat <- factor(x$cat, levels=c("PDGFD", "PDGFRB"), ordered=TRUE)
 x$item <- factor(x$item, levels=c(1, 2), ordered=TRUE)
-p2 =  ggsurvplot(
+p3 =  ggsurvplot(
   survfit(
     Surv(total_living_days, vital_status) ~ item,
     data = x 
@@ -205,7 +207,7 @@ p2 =  ggsurvplot(
         legend.position = "bottom") +
   guides(linetype = FALSE) +
   theme(aspect.ratio=1)
-ggsave(plot = p2, "output/BLCA-NEW-p3.pdf", device = "pdf", height = 4, width = 7)
+ggsave(plot = p3, "output/BLCA-NEW-p3.pdf", device = "pdf", height = 4, width = 7)
 
 
 #FIG 4
@@ -223,7 +225,7 @@ x$cat <- factor(x$cat, levels=c("PDGFD/ReNK", "PDGFD/IL2NK", "PDGFD/SPANK"), ord
 
 
 
-p3 =  ggsurvplot(
+p4 =  ggsurvplot(
   survfit(
     Surv(total_living_days, vital_status) ~ item,
     data = x 
@@ -244,7 +246,7 @@ p3 =  ggsurvplot(
         legend.position = "bottom") +
   guides(linetype = FALSE) 
 
-ggsave(plot = p3, "output/BLCA-NEW-p4.pdf",device = "pdf", height = 4, width = 10)
+ggsave(plot = p4, "output/BLCA-NEW-p4.pdf",device = "pdf", height = 4, width = 10)
 
 
 #FIG 5
