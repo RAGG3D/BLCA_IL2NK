@@ -148,7 +148,7 @@ x$histologic_grade = factor(x$histologic_grade, levels=c('All','Low Grade', 'Hig
 my_comparisons <- list( c("nk_resting", "nk_primed_IL2"), c("nk_primed_IL2", "nk_primed_IL2_PDGFD"), c("nk_resting", "nk_primed_IL2_PDGFD") )
 pc <- ggboxplot(x, x = "nkstate", y = "profile", facet.by = "histologic_grade", fill = "nkstate", nrow = 1) + 
   scale_fill_brewer(name = "", palette="RdYlGn", labels = c("ReNK", "IL2NK", "SPANK"), direction = -1) +
-  labs(x = "", y = "Fraction", tag = "A") +
+  labs(x = "", y = "Fraction") +
   stat_compare_means(comparisons = my_comparisons, label = "p.signif") +  
   geom_jitter(aes(color = nkstate), alpha = 0.6, size = 0.3) +
   scale_color_manual(name = "", values = c("#3b5629", "#e6b800", "#995c00"), labels = c("ReNK", "IL2NK", "SPANK")) +
@@ -157,6 +157,8 @@ pc <- ggboxplot(x, x = "nkstate", y = "profile", facet.by = "histologic_grade", 
         axis.ticks.x = element_blank(),
         axis.text.x = element_blank(),
         legend.position = "bottom")
+
+ggsave(plot = pc, "output/BLCA-NEW-p2.pdf", device = "pdf", height = 5, width = 8)
 
 lab = as.character(as.data.frame(x %>% group_by(histologic_grade) %>% summarise())[,1])
 my_comparisons <- list( c(lab[1], lab[2]), c(lab[1], lab[3]),c(lab[2], lab[3]))
@@ -168,15 +170,12 @@ pd <- ggboxplot(x, x = "histologic_grade", y = "profile", facet.by = "nkstate", 
   geom_jitter(aes(color = histologic_grade), alpha = 0.6, size = 0.3) +
   scale_color_manual(name = "", values = c("#328173", "#ff9900", "#5a5095"), labels = lab) +
   theme_bw() +
-  labs(tag = "")+
   theme(text=element_text(size=16, family="sans"),
         axis.ticks.x = element_blank(),
         axis.text.x = element_blank(),
         legend.position = "bottom")
 
-ggsave(plot = plot_grid(plot_grid(pc, pd, nrow = 1), 
-                        plot_grid(NK_KM_Grade("Low Grade")+labs(tag = "B"), NK_KM_Grade("High Grade")+labs(tag = ""), ncol = 1), 
-                        nrow = 2), "output/BLCA-NEW-p2.pdf", device = "pdf", height = 20, width = 16)
+ggsave(plot = pd, "output/BLCA-NEW-supp1.pdf", device = "pdf", height = 5, width = 8)
 
 
 #FIG 3
