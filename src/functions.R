@@ -244,3 +244,11 @@ BLCA_transcript <- function(){
     tidybulk::aggregate_duplicates(.sample = sample, .abundance = raw_count, .transcript = symbol) %>%
     tidybulk::scale_abundance(.sample = sample, .abundance = raw_count, .transcript = symbol) 
 }
+
+clinical_combine <- function(x, cancer) {
+  x %>% 
+    inner_join(read.csv(paste0("data/clinical_", tolower(cancer), ".csv")), by = c("sample" = "bcr_patient_barcode"))%>%
+    mutate(total_living_days = as.numeric(as.character(days_to_death)), age = -as.numeric(as.character(days_to_birth))/365) %>% 
+    mutate(na = is.na(total_living_days)) %>%
+    mutate(total_living_days = ifelse(na == "TRUE", as.numeric(as.character(last_contact_days_to)), total_living_days)) %>%
+    mutate(vital_status = ifelse(vital_status == "Dead", 1, 0))}
