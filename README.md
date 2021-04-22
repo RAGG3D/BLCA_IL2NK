@@ -155,6 +155,14 @@ p1b =  ggsurvplot(
   labs(tag = "B")
 ```
 
+Then we put the panels together:
+```
+plot_grid(plot_grid(p1a01, p1a02, nrow = 1), p1b, ncol = 1)
+```
+All the figure should be saved as a PDF for further edits.
+(After modification)
+![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/master/figures/BLCA-NEW-p1.jpg)
+
 ## Figure 2
 ### FIG 2A
 ```
@@ -197,10 +205,6 @@ pc <- ggboxplot(x, x = "nkstate", y = "profile", facet.by = "histologic_grade", 
         axis.text.x = element_blank(),
         legend.position = "bottom")
  ```
- Then the final figure 1 will be:
- ```
-plot_grid(plot_grid(p1a01, p1a02, nrow = 1), p1b, ncol = 1)
- ```
 
 ### FIG 2B
 ```
@@ -226,6 +230,8 @@ plot_grid(plot_grid(pc, pd, nrow = 1),
 plot_grid(NK_KM_Grade("Low Grade") + labs(tag = "B"), NK_KM_Grade("High Grade")+labs(tag = ""), ncol = 1), 
 nrow = 2)
 ```
+(After modification)
+![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/master/figures/BLCA-NEW-p2.jpg)
 
 ## Figure 3
 ### FIG 3
@@ -262,6 +268,8 @@ p3 =  ggsurvplot(
   guides(linetype = FALSE) +
   theme(aspect.ratio=1)
 ```
+(After modification)
+![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/master/figures/BLCA-NEW-p3.jpg)
 
 ## Figure 4
 ### FIG  4
@@ -303,6 +311,8 @@ p4 =  ggsurvplot(
         legend.position = "bottom") +
   guides(linetype = FALSE) 
 ```
+(After modification)
+![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/master/figures/BLCA-NEW-p4.jpg)
 
 ## Figure 5
 ### FIG 5A
@@ -428,3 +438,5 @@ Then we need to format the 3 panels:
 ```
 plot_grid(plot_grid(p5a, p5b, nrow = 1), p5c, ncol = 1)
 ```
+(After modification)
+![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/master/figures/BLCA-NEW-p5.jpg)
