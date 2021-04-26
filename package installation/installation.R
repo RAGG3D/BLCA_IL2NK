@@ -1,0 +1,22 @@
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install("org.Hs.eg.db")
+BiocManager::install("survminer")
+BiocManager::install("tidyverse")
+
+install.packages("devtools")
+devtools::install_github("stemangiola/tidybulk")
+
+install.packages("survival")
+install.packages("gapminder")
+install.packages("foreach")
+install.packages("cowplot")
+install.packages("ggsci")
+install.packages("GGally")
+install.packages("gridExtra")
+install.packages("grid")
+install.packages("reshape")
+install.packages("Hmisc")
+install.packages("viridis")
+install.packages("furrr")
+
