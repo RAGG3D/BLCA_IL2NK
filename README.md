@@ -1,10 +1,10 @@
 # BLCA_IL2NK
 
 ## Packages and source required
-```
+```r
 options(connectionObserver = NULL) #This is to help load org.Hs.eg.db 
-```
-```
+```r
+```r
 library(tidyverse)
 library(tidybulk)
 library(survminer)
@@ -23,11 +23,11 @@ library(viridis)
 library(furrr)
 
 source("src/functions.R") #Source all the functions from src
-```
+```r
 
 ## Prepare data
 Firstly we need to run the signature of selected cell types with patient RNA-seq dataset in CIBERSORT:
-```
+```r
 res = res_run(readRDS("data/my_ref.rds")[,-c(1,4,11,17,21,24,28,31,32,33)])
 blcank <- foreach(i = as.character(res$stratification_cellularity[[1]]$.cell_type), .combine = bind_rows) %do% {
   x <- res$stratification_cellularity[[1]] %>%
@@ -37,7 +37,7 @@ blcank <- foreach(i = as.character(res$stratification_cellularity[[1]]$.cell_typ
     mutate(celltype = i, fraction = .proportion, nkstate = celltype, sample = patient)%>%
     dplyr::select(sample, nkstate, fraction)
 } %>%    filter(grepl("nk", nkstate)) 
-```
+```r
 Then we formatted the matrix of cell type fractions to make it easier to use in the following analysis:
 ```
 blcank <- foreach(i = as.character(res$stratification_cellularity[[1]]$.cell_type), .combine = bind_rows) %do% {
