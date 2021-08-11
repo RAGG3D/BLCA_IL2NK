@@ -4,7 +4,7 @@
 ```
 options(connectionObserver = NULL) #This is to help load org.Hs.eg.db 
 ```
-```
+```{r,}
 library(tidyverse)
 library(tidybulk)
 library(survminer)
