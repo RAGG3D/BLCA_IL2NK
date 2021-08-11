@@ -1,7 +1,8 @@
 # BLCA_IL2NK
-```r
+
 ## Packages and source required
 
+```r
 options(connectionObserver = NULL) #This is to help load org.Hs.eg.db 
 
 library(tidyverse)
@@ -23,10 +24,10 @@ library(furrr)
 
 source("src/functions.R") #Source all the functions from src
 
-
+```
 ## Prepare data
 Firstly we need to run the signature of selected cell types with patient RNA-seq dataset in CIBERSORT:
-```{r}
+```r
 res = res_run(readRDS("data/my_ref.rds")[,-c(1,4,11,17,21,24,28,31,32,33)])
 blcank <- foreach(i = as.character(res$stratification_cellularity[[1]]$.cell_type), .combine = bind_rows) %do% {
   x <- res$stratification_cellularity[[1]] %>%
@@ -38,7 +39,7 @@ blcank <- foreach(i = as.character(res$stratification_cellularity[[1]]$.cell_typ
 } %>%    filter(grepl("nk", nkstate)) 
 ```
 Then we formatted the matrix of cell type fractions to make it easier to use in the following analysis:
-```
+```r
 blcank <- foreach(i = as.character(res$stratification_cellularity[[1]]$.cell_type), .combine = bind_rows) %do% {
   x <- res$stratification_cellularity[[1]] %>%
     filter(.cell_type == i)
@@ -64,7 +65,7 @@ After preparing the data we can start making figures.
 ## Figure 1
 ### FIG 1A
 
-```
+```r
 x <- Bar_TCGAcelltype_BLCA(blcank) %>%
   mutate(nkstate = gsub("nk_resting", "ReNK", nkstate)) %>%  
   mutate(nkstate = gsub("nk_primed_IL2_PDGFD", "SPANK", nkstate)) %>%
@@ -104,7 +105,7 @@ p1a02 <- x %>%
 ```
 
 ### FIG 1B
-```
+```r
 x <- blcank %>%
   spread(nkstate, fraction) %>%
   mutate(nk_primed_IL2 = ifelse(
@@ -155,7 +156,7 @@ p1b =  ggsurvplot(
 ```
 
 Then we put the panels together:
-```
+```r
 plot_grid(plot_grid(p1a01, p1a02, nrow = 1), p1b, ncol = 1)
 ```
 All the figure should be saved as a PDF for further edits.
@@ -164,7 +165,7 @@ All the figure should be saved as a PDF for further edits.
 
 ## Figure 2
 ### FIG 2A
-```
+```r
 x <- Bar_TCGAcelltype_BLCA(blcank) %>%
   inner_join(read.csv("data/clinical_blca.csv"), by = c("sample" = "bcr_patient_barcode"))%>%
   mutate(total_living_days = as.numeric(as.character(days_to_death)), age = -as.numeric(as.character(days_to_birth))/365) %>% 
@@ -206,7 +207,7 @@ pc <- ggboxplot(x, x = "nkstate", y = "profile", facet.by = "histologic_grade", 
  ```
 
 ### FIG 2B
-```
+```r
 lab = as.character(as.data.frame(x %>% group_by(histologic_grade) %>% summarise())[,1])
 my_comparisons <- list( c(lab[1], lab[2]), c(lab[1], lab[3]),c(lab[2], lab[3]))
 pd <- ggboxplot(x, x = "histologic_grade", y = "profile", facet.by = "nkstate", nrow = 1, fill = "histologic_grade",
@@ -224,7 +225,7 @@ pd <- ggboxplot(x, x = "histologic_grade", y = "profile", facet.by = "nkstate", 
         legend.position = "bottom")
 ```
 Then we need to format the 2 panels:
-```
+```r
 plot_grid(plot_grid(pc, pd, nrow = 1), 
 plot_grid(NK_KM_Grade("Low Grade") + labs(tag = "B"), NK_KM_Grade("High Grade")+labs(tag = ""), ncol = 1), 
 nrow = 2)
@@ -234,7 +235,7 @@ nrow = 2)
 
 ## Figure 3
 ### FIG 3
-```
+```r
 x <- PDGFsurvival("BLCA", 2) %>%
   gather(cat, item, -sample) %>% 
   TCGA_clinical("BLCA")
@@ -272,7 +273,7 @@ p3 =  ggsurvplot(
 
 ## Figure 4
 ### FIG  4
-```
+```r
 x <- Gene_Cell("BLCA", blcank, "PDGFD", c('nk_resting', 'nk_primed_IL2', 'nk_primed_IL2_PDGFD')) %>%
   rbind(Gene_Cell("BLCA", blcank, "PDGFRB", c('nk_resting', 'nk_primed_IL2', 'nk_primed_IL2_PDGFD'))) %>%
   mutate(cat = gsub("nk_resting", "ReNK", cat)) %>%
@@ -315,7 +316,7 @@ p4 =  ggsurvplot(
 
 ## Figure 5
 ### FIG 5A
-```
+```r
 x <- genelist_cancer(BLCA, "BLCA", list("KLRK1")) %>%
   filter(cat == "median")
   
@@ -344,7 +345,7 @@ p5a <- ggsurvplot(
 ```
 
 ### FIG 5B
-```
+```r
 cancer = "BLCA"
 
 x <- foreach(i = "CD160", .combine = bind_rows) %do% {
@@ -394,7 +395,7 @@ p5b <- ggsurvplot(
 ```
 
 ### FIG 5C
-```
+```r
 Immunereceptor <- c("KLRK1", "TNFRSF14", "CD160", "TNFSF14" , "LTA", "BTLA")
 
 x <- blcacell %>%
@@ -434,7 +435,7 @@ p5c <- ggplot(data = a , aes(x=`X2`, y=`X1`, fill=value)) +
 ```
 
 Then we need to format the 3 panels:
-```
+```r
 plot_grid(plot_grid(p5a, p5b, nrow = 1), p5c, ncol = 1)
 ```
 (After modification)
