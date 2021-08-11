@@ -3,7 +3,7 @@
 ## Packages and source required
 ```
 options(connectionObserver = NULL) #This is to help load org.Hs.eg.db 
-```{r}
+```
 library(tidyverse)
 library(tidybulk)
 library(survminer)
@@ -26,7 +26,7 @@ source("src/functions.R") #Source all the functions from src
 
 ## Prepare data
 Firstly we need to run the signature of selected cell types with patient RNA-seq dataset in CIBERSORT:
-```
+```{r}
 res = res_run(readRDS("data/my_ref.rds")[,-c(1,4,11,17,21,24,28,31,32,33)])
 blcank <- foreach(i = as.character(res$stratification_cellularity[[1]]$.cell_type), .combine = bind_rows) %do% {
   x <- res$stratification_cellularity[[1]] %>%
