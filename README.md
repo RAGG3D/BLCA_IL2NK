@@ -107,7 +107,7 @@ plot_grid(plot_grid(p1a01, p1a02, nrow = 1), p1b, ncol = 1)
 All the figure should be saved as a PDF for further edits.
 (After modification)
 
-![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/master/figures/BLCA-NEW-p1.jpg)
+![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/main/figures/BLCA-NEW-p1.jpg)
 
 ## Figure 2 (See Figure scripts/Figure 2.R)
 ### FIG 2A
@@ -178,7 +178,7 @@ nrow = 2)
 ```
 (After modification)
 
-![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/master/figures/BLCA-NEW-p2.jpg)
+![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/main/figures/BLCA-NEW-p2.jpg)
 
 ## Figure 3 (See Figure scripts/Figure 3.R)
 ### FIG 3
@@ -217,7 +217,7 @@ p3 =  ggsurvplot(
 ```
 (After modification)
 
-![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/master/figures/BLCA-NEW-p3.jpg)
+![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/main/figures/BLCA-NEW-p3.jpg)
 
 ## Figure 4 (See Figure scripts/Figure 4.R)
 ### FIG  4
@@ -261,7 +261,7 @@ p4 =  ggsurvplot(
 ```
 (After modification)
 
-![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/master/figures/BLCA-NEW-p4.jpg)
+![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/main/figures/BLCA-NEW-p4.jpg)
 
 ## Figure 5 (See Figure scripts/Figure 5.R)
 ### FIG 5A
@@ -396,4 +396,4 @@ and modify the figure:
 
 (After modification)
 
-![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/master/figures/BLCA-NEW-p5.jpg)
+![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/main/figures/BLCA-NEW-p5.jpg)
