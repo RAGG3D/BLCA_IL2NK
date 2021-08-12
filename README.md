@@ -1,69 +1,14 @@
 # BLCA_IL2NK
 
-## Packages and source required
+## Packages, functions and data required
 
 ```r
-options(connectionObserver = NULL) #This is to help load org.Hs.eg.db 
-
-library(tidyverse)
-library(tidybulk)
-library(survminer)
-library(survival)
-library(gapminder)
-library(foreach)
-library(org.Hs.eg.db)
-library(cowplot)
-library(ggsci)
-library(GGally)
-library(gridExtra)
-library(grid)
-library(reshape)
-library(Hmisc)
-library(viridis)
-library(furrr)
-
-source("src/functions.R") #Source all the functions from src
+source("src/functions.R") 
 
 ```
-## Prepare data
-Firstly we need to run the signature of selected cell types with patient RNA-seq dataset in CIBERSORT:
-```r
-res = res_run(readRDS("data/my_ref.rds")[,-c(1,4,11,17,21,24,28,31,32,33)])
-blcank <- foreach(i = as.character(res$stratification_cellularity[[1]]$.cell_type), .combine = bind_rows) %do% {
-  x <- res$stratification_cellularity[[1]] %>%
-    filter(.cell_type == i)
-  
-  x$cell_type_proportions[[1]]  %>%
-    mutate(celltype = i, fraction = .proportion, nkstate = celltype, sample = patient)%>%
-    dplyr::select(sample, nkstate, fraction)
-} %>%    filter(grepl("nk", nkstate)) 
-```
-Then we formatted the matrix of cell type fractions to make it easier to use in the following analysis:
-```r
-blcank <- foreach(i = as.character(res$stratification_cellularity[[1]]$.cell_type), .combine = bind_rows) %do% {
-  x <- res$stratification_cellularity[[1]] %>%
-    filter(.cell_type == i)
-  
-  x$cell_type_proportions[[1]]  %>%
-    mutate(celltype = i, fraction = .proportion, nkstate = celltype, sample = patient)%>%
-    dplyr::select(sample, nkstate, fraction)
-} %>%    
-    filter(grepl("nk", nkstate)) 
 
-blcacell <- foreach(i = as.character(res$stratification_cellularity[[1]]$.cell_type), .combine = bind_rows) %do% {
-  x <- res$stratification_cellularity[[1]] %>%
-    filter(.cell_type == i)
-  
-  x$cell_type_proportions[[1]]  %>%
-    mutate(celltype = i, fraction = .proportion, sample = patient)%>%
-    dplyr::select(sample, celltype, fraction)
-}
-```
-
-After preparing the data we can start making figures.
-
-## Figure 1
-### FIG 1A
+## Figure 1 (See Figure scripts/Figure 1.R)
+### FIG 1A 
 
 ```r
 x <- Bar_TCGAcelltype_BLCA(blcank) %>%
@@ -163,7 +108,7 @@ All the figure should be saved as a PDF for further edits.
 (After modification)
 ![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/master/figures/BLCA-NEW-p1.jpg)
 
-## Figure 2
+## Figure 2 (See Figure scripts/Figure 2.R)
 ### FIG 2A
 ```r
 x <- Bar_TCGAcelltype_BLCA(blcank) %>%
@@ -233,7 +178,7 @@ nrow = 2)
 (After modification)
 ![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/master/figures/BLCA-NEW-p2.jpg)
 
-## Figure 3
+## Figure 3 (See Figure scripts/Figure 3.R)
 ### FIG 3
 ```r
 x <- PDGFsurvival("BLCA", 2) %>%
@@ -271,7 +216,7 @@ p3 =  ggsurvplot(
 (After modification)
 ![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/master/figures/BLCA-NEW-p3.jpg)
 
-## Figure 4
+## Figure 4 (See Figure scripts/Figure 4.R)
 ### FIG  4
 ```r
 x <- Gene_Cell("BLCA", blcank, "PDGFD", c('nk_resting', 'nk_primed_IL2', 'nk_primed_IL2_PDGFD')) %>%
@@ -314,7 +259,7 @@ p4 =  ggsurvplot(
 (After modification)
 ![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/master/figures/BLCA-NEW-p4.jpg)
 
-## Figure 5
+## Figure 5 (See Figure scripts/Figure 5.R)
 ### FIG 5A
 ```r
 x <- genelist_cancer(BLCA, "BLCA", list("KLRK1")) %>%
@@ -409,34 +354,42 @@ x <- blcacell %>%
     dplyr::select(sample, cat, item) %>%
     spread(cat, item))
 
-a <- melt(cor(x %>% dplyr::select(-sample))[-c(1:11), c(1:11)])
+a <- reshape::melt(cor(x %>% dplyr::select(-sample))[-c(1:11), c(1:11)])
 a.p <- rcorr(as.matrix(x %>% dplyr::select(-sample)))
 a <- a %>% inner_join(as.data.frame(a.p$P[-c(1:11), c(1:11)]) %>% 
                         mutate(X1 = rownames(as.data.frame(a.p$P[-c(1:11), c(1:11)]))) %>% 
-                        gather(X2, p.value, -X1)) 
-a$stars <- cut(a$p.value, breaks=c(-Inf, 0.001, 0.01, 0.05, Inf), label=c("***", "**", "*", ""))  # Create column of significance labels
-a$X2 <- factor(a$X2, levels=c('nk_resting', 'nk_primed_IL2', 'nk_primed_IL2_PDGFD', "t_helper", "t_CD8_naive", "t_gamma_delta", 't_CD4_memory_central', 
-                              't_CD4_memory_effector', "t_CD8_memory_central", "t_CD8_memory_effector", "t_reg"), ordered=TRUE)
+                        gather(X2, p.value, -X1)) %>%
+  inner_join(read_csv("data/cellname.csv"))
+a$`Cell Type` <- factor(a$`Cell Type`, levels=c('ReNK', 'IL2NK', 'SPANK', "Helper T", "Naive CD8 T", "GD T", 'Memory CD4 T CTL', 
+                                                'Memory CD4 T EFC', "Memory CD8 T CTL", "Memory CD8 T EFC", "Reg T"), ordered=TRUE)
 a$X1 <- factor(a$X1, levels = c("LTA", "BTLA", "TNFSF14", "CD160", "TNFRSF14", "KLRK1"), ordered = T)
-
-p5c <- ggplot(data = a , aes(x=`X2`, y=`X1`, fill=value)) + 
-  geom_tile() + 
-  geom_text(aes(label=stars)) + 
-  scale_fill_viridis() +
-  labs(y = "", x = "") + #y = "Log Transformed Normalized Count", x = "Log Transformed NK Proportion"
-  theme_bw() +
-  scale_x_discrete(labels = c("ReNK", "IL2NK", "SPANK", "Helper\nT", "Naive\nCD8 T", "?æ? T", "Memory\nCD4 T CTL", 
-                              "Memory\nCD4 T EFC", "Memory\nCD8 T CTL", "Memory\nCD8 T EFC", "Reg T")) +
-  theme(text=element_text(size=16, family="sans"),
-        legend.position = "bottom",
-        axis.text.x = element_text(angle = -45),
-        legend.key.width = unit(3, "line")) +
-  labs(fill = "Correlation")
+p5c <- as_tibble(a ) %>%
+  tidybulk::rename("Receptor" = "X1") %>%
+  tidyHeatmap::heatmap(
+    Receptor,
+    `Cell Type`,
+    value,
+    cluster_rows = FALSE,
+    
+    cluster_columns = FALSE,
+    
+    palette_value = circlize::colorRamp2(
+      
+      seq(2,-2, length.out = 11),
+      
+      RColorBrewer::brewer.pal(11, "RdBu")
+      
+    )
+    
+  ) 
 ```
 
-Then we need to format the 3 panels:
+Then we need to save p5c seperately, because it a InputHeatmap instead of a grob. So p5c cannot be formatted by plot_grid with p5a & p5b:
 ```r
-plot_grid(plot_grid(p5a, p5b, nrow = 1), p5c, ncol = 1)
+ggsave("output/BLCA-NEW-p5-heat.pdf",device = "pdf", height =6, width = 15)
 ```
+and modify the figure:
+
 (After modification)
+
 ![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/master/figures/BLCA-NEW-p5.jpg)
