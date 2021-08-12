@@ -106,6 +106,7 @@ plot_grid(plot_grid(p1a01, p1a02, nrow = 1), p1b, ncol = 1)
 ```
 All the figure should be saved as a PDF for further edits.
 (After modification)
+
 ![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/master/figures/BLCA-NEW-p1.jpg)
 
 ## Figure 2 (See Figure scripts/Figure 2.R)
@@ -176,6 +177,7 @@ plot_grid(NK_KM_Grade("Low Grade") + labs(tag = "B"), NK_KM_Grade("High Grade")+
 nrow = 2)
 ```
 (After modification)
+
 ![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/master/figures/BLCA-NEW-p2.jpg)
 
 ## Figure 3 (See Figure scripts/Figure 3.R)
@@ -214,6 +216,7 @@ p3 =  ggsurvplot(
   theme(aspect.ratio=1)
 ```
 (After modification)
+
 ![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/master/figures/BLCA-NEW-p3.jpg)
 
 ## Figure 4 (See Figure scripts/Figure 4.R)
@@ -257,6 +260,7 @@ p4 =  ggsurvplot(
   guides(linetype = FALSE) 
 ```
 (After modification)
+
 ![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/master/figures/BLCA-NEW-p4.jpg)
 
 ## Figure 5 (See Figure scripts/Figure 5.R)
