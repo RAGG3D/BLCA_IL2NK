@@ -396,4 +396,4 @@ and modify the figure:
 
 (After modification)
 
-![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/master/figures/BLCA-NEW-p5.jpg)
+![image](https://github.com/RAGG3D/BLCA_IL2NK/blob/main/figures/BLCA-NEW-p5.jpg)
