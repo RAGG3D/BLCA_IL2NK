@@ -1,51 +1,33 @@
-res_run <- function(x) {
-  
-  tibble(
-    
-    file =
-      
-      dir(
-        
-        pattern = "armet_",
-        
-        "D:/PhD Projects/Rprojects/BLCA_IL2NK/data/",
-        
-        full.names = T
-        
-      ) %>%
-      
-      grep("input.rds", ., value = T)
-    
-  ) %>%
-    
-    extract(file, "cancer_type", ".*armet_([A-Z]+)_input.*", remove = FALSE) %>%
-    
-    mutate(
-      
-      stratification_cellularity =
-        
-        furrr::future_map(
-          
-          file, ~ readRDS(.x) %>%
-            
-            test_stratification_cellularity(
-              
-              survival::Surv(PFI.time.2, PFI.2) ~ .,
-              
-              patient,
-              
-              transcript,
-              
-              count,
-              
-              cores = 1,
-              
-              reference = x 
-              
-            )
-          
-        )
-      
+options(connectionObserver = NULL)
+
+library(tidyverse)
+library(tidybulk)
+library(survminer)
+library(survival)
+library(gapminder)
+library(foreach)
+library(org.Hs.eg.db)
+library(cowplot)
+library(ggsci)
+library(GGally)
+library(gridExtra)
+library(grid)
+library(reshape)
+library(Hmisc)
+library(viridis)
+library(tidyHeatmap)
+library(furrr)
+library(data.table)
+
+CIBERSORT <- function(x, c1, c2, c3, ref, meth, act) {
+  as_tibble(setDT(x)[, lapply(.SD, sum), by = c(c1, c2), .SDcols = c3]) %>%
+    deconvolve_cellularity(
+      .sample = !!sym(c1),
+      .transcript = !!sym(c2),
+      .abundance = !!sym(c3),
+      reference = ref,
+      method = meth,
+      action = act
     )
 }
 
@@ -81,10 +63,10 @@ Gene_Cell <- function(cancer, a, gene, cells){
       filter(symbol == gene) %>%
       dplyr::select(sample, symbol, raw_count_scaled) %>%
       spread(symbol, raw_count_scaled) %>%
-      mutate(gene = factor(Hmisc::cut2(!!as.name(gene), g = 2), labels = c(1:2))) %>%
+      mutate(gene = factor(Hmisc::cut2(!!as.name(gene), g = 2), labels = c(1:nlevels(Hmisc::cut2(!!as.name(gene), g = 2))))) %>%
       inner_join(a %>%
                    spread(nkstate, fraction) %>%
-                   mutate(cell = factor(Hmisc::cut2(!!as.name(i), g = 2), labels = c(1:2))) %>%
+                   mutate(cell = factor(Hmisc::cut2(!!as.name(i), g = 2), labels = c(1:nlevels(Hmisc::cut2(!!as.name(i), g = 2))))) %>%
                    dplyr::select(sample, cell)) %>%
       unite("item", gene, cell, sep = "/", remove = T) %>%
       dplyr::select(sample, item) %>% 
@@ -225,25 +207,27 @@ genelist_cancer <- function(y, cancer, genelist) {
 }
 
 BLCA_transcript <- function(){
-  foreach(i = list.files("data/Transcript/"), .combine = bind_rows) %do% {
-    read_table2(paste0("data/Transcript/", i), col_names = F) %>%
-      mutate(sample = i)
-  }  %>% 
-    tidybulk::rename(ensembl = `X1`) %>%
-    tidybulk::rename(raw_count = `X2`) %>%
-    separate(ensembl, c("ensembl_id", "c"), sep = "\\.") %>%
-    inner_join(toTable(org.Hs.egENSEMBL)) %>%
-    inner_join(toTable(org.Hs.egSYMBOL)) %>%
-    dplyr::select(sample, symbol, raw_count) %>%
-    mutate(sample = paste0(substr(basename(as.character(sample)), start = 1, stop = 49), ".gz")) %>%
-    as.tibble() %>%
-    inner_join(
-      read_csv(paste0("data/gdc_sample_sheet.csv"))%>% mutate(sample = `File Name`)) %>%
-    mutate(sample = `Case ID`) %>%
-    dplyr::select(sample, symbol, raw_count) %>%
-    tidybulk::aggregate_duplicates(.sample = sample, .abundance = raw_count, .transcript = symbol) %>%
-    tidybulk::scale_abundance(.sample = sample, .abundance = raw_count, .transcript = symbol) 
+  as_tibble(
+    data.table::setDT(
+      map_dfr(as.list(list.files("data/Transcript/")), 
+              function(i){
+                data.table::fread(paste0("data/Transcript/", i)) %>%
+                  mutate(sample = i)
+              }) %>%
+        tidybulk::rename(raw_count = `V2`) %>%
+        mutate(ensembl_id = gsub("\\..*", "", V1)) %>%
+        inner_join(toTable(org.Hs.egENSEMBL)) %>%
+        inner_join(toTable(org.Hs.egSYMBOL)) %>%
+        dplyr::select(sample, symbol, raw_count) %>%
+        mutate(sample = gsub("counts.*", "counts.gz", sample)) %>%
+        inner_join(
+          read_csv("data/gdc_sample_sheet.csv") %>% mutate(sample = `File Name`)) %>%
+        mutate(sample = `Case ID`) %>%
+        dplyr::select(sample, symbol, raw_count)
+    )[, list(raw_count = sum(raw_count)), by = c("sample", "symbol")]) %>%  #Sum the raw_counts of duplicated rows
+    tidybulk::scale_abundance(.sample = sample, .abundance = raw_count, .transcript = symbol)
 }
+
 
 clinical_combine <- function(x, cancer) {
   x %>% 
@@ -252,3 +236,17 @@ clinical_combine <- function(x, cancer) {
     mutate(na = is.na(total_living_days)) %>%
     mutate(total_living_days = ifelse(na == "TRUE", as.numeric(as.character(last_contact_days_to)), total_living_days)) %>%
     mutate(vital_status = ifelse(vital_status == "Dead", 1, 0))}
+
+
+
+
+ref = readRDS("data/my_ref.rds")[,-c(1,4,11,17,21,24,28,31,32,33)]
+blca <- BLCA_transcript()
+blcank <- CIBERSORT(blca, "sample", "symbol", "raw_count", ref, "cibersort", "get") %>%
+  pivot_longer(-sample, names_to = "nkstate", values_to = "fraction") %>%
+  filter(grepl("nk", nkstate)) 
+
+blcacell <- CIBERSORT(blca, "sample", "symbol", "raw_count", ref, "cibersort", "get") %>%
+  pivot_longer(-sample, names_to = "celltype", values_to = "fraction")
+
+BLCA <- readRDS("data/BLCA.rds")
